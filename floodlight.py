@@ -1,17 +1,29 @@
+from mininet.moduledeps import pathCheck
 from mininet.node import Controller
 from os import environ
 
 FLDIR = environ['HOME'] + '/floodlight'
-print(FLDIR)
-
 
 class Floodlight(Controller):
     def __init__(self, name, cdir=FLDIR,
                  command='java -jar target/floodlight.jar',
-                 cargs=(),
+                 cargs='',
+                 ip='127.0.0.1',
                  port=6653,
-                 ip='192.168.1.1',
                  **kwargs):
         Controller.__init__(self, name, cdir=cdir,
                             command=command,
-                            cargs=cargs, port=port, ip=ip, **kwargs)
+                            cargs=cargs, ip=ip, port=port, **kwargs)
+
+    def start(self):
+        """Start <controller> <args> on controller.
+           Log to /tmp/cN.log"""
+        pathCheck(self.command)
+        cout = '/tmp/' + self.name + '.log'
+        if self.cdir is not None:
+            self.cmd('cd ' + self.cdir)
+        # print(self.command + ' ' + self.cargs +
+        #          ' 1>' + cout + ' 2>' + cout + '&')
+        self.cmd(self.command + ' ' + self.cargs +
+                 ' 1>' + cout + ' 2>' + cout + '&')
+        self.execed = False
